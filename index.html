@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeamuel Amado // 3D Isometric Developer Journey Diorama</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23070913'/><rect x='25' y='25' width='50' height='50' fill='%2300f0ff'/></svg>" />
+</head>
+
+<body>
+  <div id="app">
+    <!-- 3D WebGL Canvas Viewport -->
+    <div id="canvas-container"></div>
+
+    <!-- Cyberpunk Atmosphere Overlays -->
+    <div class="scanlines-overlay"></div>
+    <div class="vignette"></div>
+
+    <!-- Top Glassmorphic Navigation Bar -->
+    <header class="header-bar glass-panel">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <span>◆</span>
+          <span>JEAMUEL AMADO</span>
+        </div>
+        <span class="brand-tag">3D ISOMETRIC DIORAMA</span>
+      </div>
+
+      <!-- Chapter Navigation Pills -->
+      <nav class="nav-pills">
+        <button class="nav-pill ch-hub active" data-chapter="hub">
+          <span>⦿</span> HUB
+        </button>
+        <button class="nav-pill ch-1" data-chapter="chapter1">
+          <span> CHAPTER 1
+        </button>
+        <button class="nav-pill ch-2" data-chapter="chapter2">
+          <span> CHAPTER 2
+        </button>
+        <button class="nav-pill ch-3" data-chapter="chapter3">
+          <span> CHAPTER 3
+        </button>
+        <button class="nav-pill ch-4" data-chapter="chapter4">
+          <span> CHAPTER 4
+        </button>
+      </nav>
+
+      <!-- Action Controls -->
+      <div class="header-actions">
+        <button id="btn-about" class="btn-icon">
+          <span>👤</span> ABOUT ME
+        </button>
+        <button id="btn-projects" class="btn-icon">
+          <span>💼</span> MY PROJECTS
+        </button>
+        <button id="btn-camera-view" class="btn-icon">
+          <span>📷</span> CAM: ISO
+        </button>
+        <button id="btn-audio-toggle" class="btn-icon">
+          <span>🔊</span> AUDIO: ON
+        </button>
+        <button id="btn-contact-header" class="btn-icon btn-primary-neon">
+          <span>⚡</span> CONTACT ME
+        </button>
+      </div>
+    </header>
+
+    <!-- Floating Destination HUD Card -->
+    <div id="current-destination-hud" class="current-destination-hud glass-panel">
+      <div class="dest-badge-header">
+        <span class="dest-pulse-dot"></span>
+        <span id="dest-badge-label" class="dest-badge-label">STANDING ON DESTINATION</span>
+      </div>
+      <div id="dest-hud-title" class="dest-hud-title">INTERACTIVE JOURNEY HUB</div>
+      <div id="dest-hud-meta" class="dest-hud-meta">Nexus Origin • Ages 7–21+</div>
+    </div>
+
+    <!-- Bottom Telemetry HUD -->
+    <footer class="bottom-hud glass-panel">
+      <div class="telemetry-item">
+        <span class="status-dot"></span>
+        <span id="telemetry-status">ENGINE READY</span>
+      </div>
+      <div class="telemetry-item">
+        <span id="telemetry-destination" class="dest-telemetry-badge">📍 STANDING ON: INTERACTIVE JOURNEY HUB</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="hint-badge">CLICK ANY ISLAND TO WALK • DRAG TO ORBIT • SCROLL TO ZOOM</span>
+      </div>
+      <div class="telemetry-item">
+        <span id="telemetry-coords">POS: [00.0, 03.8, 00.0]</span>
+      </div>
+    </footer>
+
+    <!-- Chapter Inspection Dossier Modal -->
+    <div id="chapter-modal" class="modal-overlay">
+      <div class="modal-card glass-panel">
+        <button id="chapter-modal-close" class="modal-close-btn">✕</button>
+
+        <div class="chapter-header">
+          <div id="modal-badge" class="chapter-badge">CHAPTER</div>
+          <h2 id="modal-title" class="chapter-title">Title</h2>
+          <div id="modal-meta" class="chapter-institution">Institution & Era</div>
+        </div>
+
+        <div class="section-label">HONORS & ACHIEVEMENTS</div>
+        <div id="modal-achievements" class="achievements-grid"></div>
+
+        <div class="section-label" style="margin-top: 18px;">CHAPTER STORY & JOURNEY</div>
+        <p id="modal-story" class="chapter-story">Story text...</p>
+
+        <div class="section-label">KEY MILESTONES & LEARNINGS</div>
+        <div id="modal-milestones" class="milestones-list"></div>
+
+        <div class="section-label">CORE SKILLS FORGED</div>
+        <div id="modal-skills" class="skills-tags"></div>
+
+        <div class="section-label">DIORAMA 3D VOXEL FEATURES</div>
+        <div id="modal-features" class="milestones-list"></div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 14px; gap: 10px;">
+          <button id="modal-return-hub" class="btn-icon">
+            <span>⟵</span> RETURN TO HUB
+          </button>
+          <button id="modal-close-action" class="btn-icon btn-primary-neon">
+            CONTINUE EXPLORING
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- General Information & Developer Introduction Modal (Center Idle Avatar Click) -->
+    <div id="about-modal" class="modal-overlay">
+      <div class="modal-card glass-panel about-card">
+        <button id="about-modal-close" class="modal-close-btn">✕</button>
+
+        <div class="about-hero">
+          <div class="about-avatar-badge">
+            <span class="avatar-icon">🎮</span>
+            <div class="avatar-pulse"></div>
+          </div>
+          <div class="about-header-text">
+            <div class="chapter-badge"
+              style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8;">
+              DEVELOPER PROFILE // CENTRAL NEXUS
+            </div>
+            <h2 class="about-name">JEAMUEL AMADO</h2>
+            <div class="about-role">Full-Stack Developer • AI Systems Engineer • UI/UX Designer</div>
+            <div class="about-location">📍 Calamba, Laguna • Working Student Athlete (McDonald's) • CCC Valiants #10
+            </div>
+          </div>
+        </div>
+
+        <div class="about-intro-box">
+          <p class="about-bio-text">
+            "Welcome to my interactive 3D developer portfolio! I am a multidisciplinary technologist and working student
+            athlete from Calamba, Laguna. My journey bridges creative speech theater and visual arts at <strong>Calamba
+              City School for the Arts (CCSA)</strong>, foundational computing and hardware systems at <strong>Trace
+              College (TVL-ICT)</strong>, working part-time at McDonald's (earning an official Commendation) while
+            competing as a championship varsity volleyball player with the CCC Valiants, and engineering cutting-edge AI
+            innovations like <strong>Optistance</strong> (Cheerpose Recognition & Self-Assessment Training) at
+            <strong>City College of Calamba (CCC)</strong>."
+          </p>
+        </div>
+
+        <div class="section-label">GENERAL INFORMATION MATRIX</div>
+        <div class="general-info-grid">
+          <div class="info-cell">
+            <span class="info-label">CURRENT INSTITUTION</span>
+            <span class="info-val">City College of Calamba (CCC)</span>
+          </div>
+          <div class="info-cell">
+            <span class="info-label">WORKING STUDENT STATUS</span>
+            <span class="info-val" style="color: #facc15;">Working Student Athlete • Part-Time at McDonald's</span>
+          </div>
+          <div class="info-cell">
+            <span class="info-label">ATHLETICS PROFILE</span>
+            <span class="info-val">CCC Valiants Men's Volleyball Varsity (#10)</span>
+          </div>
+          <div class="info-cell">
+            <span class="info-label">FLAGSHIP AI SYSTEM</span>
+            <span class="info-val" style="color: var(--emerald);">Optistance: Cheerpose Recognition AI</span>
+          </div>
+          <div class="info-cell">
+            <span class="info-label">KEY CERTIFICATIONS</span>
+            <span class="info-val">Figma Certified (UI/UX) • McDonald's Commendation</span>
+          </div>
+          <div class="info-cell">
+            <span class="info-label">SKILLS & SIDE HUSTLES</span>
+            <span class="info-val" style="color: var(--amber);">
+              <a href="https://www.facebook.com/share/1E4jsdoHv9/?mibextid=wwXIfr" target="_blank"
+                rel="noopener noreferrer" style="color: var(--amber); text-decoration: underline;"
+                title="Fix ni Paps Facebook Page">Fix ni Paps (w/ Jericho Valenton) ↗</a> • Home Barbering
+            </span>
+          </div>
+          <div class="info-cell">
+            <span class="info-label">CREATIVE SPECIALIZATION</span>
+            <span class="info-val">CCSA Visual Arts (Grades 7–9) • Media Arts (Grade 10)</span>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top: 20px;">CORE PILLARS & DISCIPLINES</div>
+        <div id="about-pillars" class="pillars-grid"></div>
+
+        <div class="section-label" style="margin-top: 20px;">HOW TO INTERACT WITH THIS 3D DIORAMA</div>
+        <div class="explore-hints-list">
+          <div class="hint-item">
+            <span class="hint-icon">🚶</span>
+            <div><strong>Click any Chapter Island:</strong> The Funko avatar walks along the glowing neon bridges and
+              transforms attire and proportions to match each life era.</div>
+          </div>
+          <div class="hint-item">
+            <span class="hint-icon">🏐</span>
+            <div><strong>Interactive Sports Props:</strong> Click the soccer ball (Ch. 1), basketball (Ch. 2), or
+              volleyball (Ch. 4) to trigger bouncy physics and sound effects.</div>
+          </div>
+          <div class="hint-item">
+            <span class="hint-icon">⚡</span>
+            <div><strong>3D 'CONTACT ME' Terminal:</strong> Click the glowing terminal console next to the avatar or the
+              top-bar button to transmit collaboration inquiries.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 22px; gap: 12px;">
+          <button id="about-open-contact" class="btn-icon btn-primary-neon">
+            <span>⚡</span> CONTACT JEAMUEL
+          </button>
+          <button id="about-close-action" class="btn-icon">
+            START EXPLORING
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cyber Terminal Contact Modal -->
+    <div id="contact-modal" class="modal-overlay">
+      <div class="modal-card terminal-window">
+        <div class="terminal-header">
+          <span>TERMINAL // CONTACT NEXUS - JEAMUEL AMADO</span>
+          <button id="contact-modal-close" class="modal-close-btn"
+            style="position: static; width: 24px; height: 24px; font-size: 11px;">✕</button>
+        </div>
+
+        <div class="terminal-body">
+          <div class="term-line">
+            <span class="term-prompt">sys@amado-portfolio:~$</span>
+            <span>cat /etc/developer/credentials.json</span>
+          </div>
+
+          <div
+            style="background: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 6px; margin: 10px 0; border: 1px dashed rgba(245, 158, 11, 0.4);">
+            <div><strong style="color: var(--amber);">Name:</strong> Jeamuel Amado</div>
+            <div><strong style="color: var(--cyan);">Role:</strong> Full-Stack Developer & AI Systems Engineer</div>
+            <div><strong style="color: var(--emerald);">Location:</strong> Calamba, Laguna, Philippines</div>
+            <div><strong style="color: var(--purple);">Email:</strong> jeamuel.amado@example.com</div>
+            <div><strong style="color: #38bdf8;">Status:</strong> Open to Full-Stack, AI, and High-Performance Web
+              Projects</div>
+          </div>
+
+          <div class="term-line">
+            <span class="term-prompt">sys@amado-portfolio:~$</span>
+            <span>sendmsg --interactive</span>
+          </div>
+
+          <form id="contact-form" class="contact-form" onsubmit="return false;">
+            <div class="form-group">
+              <input type="text" id="contact-name" placeholder="Your Name or Call-Sign..." required />
+            </div>
+            <div class="form-group">
+              <input type="email" id="contact-email" placeholder="Your Email Address..." required />
+            </div>
+            <div class="form-group">
+              <textarea id="contact-msg" rows="3" placeholder="Transmission payload or collaboration inquiry..."
+                required></textarea>
+            </div>
+
+            <div class="terminal-actions">
+              <button type="button" id="btn-copy-email" class="btn-icon">
+                📋 COPY EMAIL
+              </button>
+              <button type="submit" id="btn-send-msg" class="btn-icon btn-primary-neon">
+                ⚡ TRANSMIT MESSAGE
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects Showcase Modal (Graphic Design & Software Development) -->
+    <div id="projects-modal" class="modal-overlay">
+      <div class="modal-card projects-modal-card glass-panel">
+        <div class="projects-modal-header">
+          <div>
+            <div class="chapter-badge"
+              style="background: rgba(168, 85, 247, 0.2); color: var(--purple); border: 1px solid var(--purple);">
+              PORTFOLIO ARCHIVE // PROJECTS
+            </div>
+            <h2 class="projects-modal-title">Graphic Design & Software Development</h2>
+            <div class="projects-modal-subtitle">Direct Google Drive Creative Assets • Software Engineering Systems
+            </div>
+          </div>
+          <button id="projects-modal-close" class="modal-close-btn" style="position: static;">✕</button>
+        </div>
+
+        <!-- Filter / Tab Navigation -->
+        <div class="projects-filter-bar">
+          <button class="project-tab-btn active" data-filter="all">
+            <span>⦿</span> ALL PROJECTS
+          </button>
+          <button class="project-tab-btn" data-filter="graphic-design">
+            <span>🎨</span> GRAPHIC DESIGN (GOOGLE DRIVE)
+          </button>
+          <button class="project-tab-btn" data-filter="software-dev">
+            <span>💻</span> SOFTWARE DEVELOPMENT
+          </button>
+        </div>
+
+        <!-- Projects Grid Container -->
+        <div id="projects-container" class="projects-grid"></div>
+
+        <!-- Concept Preview Lightbox Toggle / Collapsible Footer -->
+        <div class="projects-footer-note">
+          <div style="font-size: 12px; color: var(--text-muted);">
+            💡 <em>Graphic Design projects link directly to Google Drive folders & documents. Software repositories will
+              be linked as deployments go public.</em>
+          </div>
+          <button id="btn-toggle-concept-art" class="btn-icon" style="font-size: 11px;">
+            <span>🖼️</span> 3D DIORAMA CONCEPT ART
+          </button>
+        </div>
+
+        <!-- Collapsible 8K Concept Art Section -->
+        <div id="inline-concept-art"
+          style="display: none; margin-top: 14px; border-top: 1px dashed var(--border-glass); padding-top: 14px;">
+          <div style="font-size: 12px; color: var(--cyan); margin-bottom: 8px; font-weight: 600;">
+            Hi-Bit Neon Pixel 3D Isometric Diorama Concept Preview
+          </div>
+          <div class="concept-image-container">
+            <img src="./concept-preview.jpg" alt="8k Hi-Bit Neon Pixel 3D Isometric Diorama Preview" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Script Entry -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+
+</html>
