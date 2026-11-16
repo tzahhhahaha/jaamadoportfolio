@@ -133,7 +133,6 @@ class App {
       chapter3: { color: '#a855f7' },
       chapter4: { color: '#10b981' }
     };
-    const targetCenter = this.world.islandCenters[targetId] || this.world.islandCenters.hub;
     const colorHex = (meta[targetId] || meta.hub).color;
 
     // While walking, islands dim to standby
@@ -148,22 +147,7 @@ class App {
     } else if (targetId === 'hub') {
       curve = this.world.paths[`${this.currentStation}_to_hub`];
     } else {
-      const targetPosition = this.world.islandCenters[targetId];
-      const direction = targetPosition.clone().sub(this.character.group.position).setY(0).normalize();
-      const start = this.character.group.position.clone();
-      const end = targetPosition.clone().addScaledVector(direction, -4.5);
-      start.y = 0.8;
-      end.y = 0.8;
-
-      const control = start.clone().add(end).multiplyScalar(0.5);
-      control.y = 2.4;
-
-      const midpointFromHub = control.clone().sub(this.world.islandCenters.hub).setY(0);
-      if (midpointFromHub.length() < 8) {
-        control.add(new THREE.Vector3(-direction.z, 0, direction.x).multiplyScalar(24));
-      }
-
-      curve = new THREE.QuadraticBezierCurve3(start, control, end);
+      curve = this.world.paths[`${this.currentStation}_to_${targetId}`];
     }
 
     if (!curve) {
@@ -175,12 +159,7 @@ class App {
       return;
     }
 
-    // Camera follow focus
-    this.sceneManager.focusOn(
-      targetCenter.clone().add(new THREE.Vector3(25, 20, 25)),
-      targetCenter,
-      2.6
-    );
+    this.sceneManager.startFollowing(this.character.group);
 
     // Command Funko avatar to walk
     const duration = this.currentStation !== 'hub' && targetId !== 'hub'
@@ -192,6 +171,7 @@ class App {
   }
 
   onArrival(arrivedId) {
+    this.sceneManager.stopFollowing();
     this.isTransitioning = false;
     this.currentStation = arrivedId;
     this.updateNavPills(arrivedId);
@@ -605,6 +585,7 @@ class App {
 
     // Update character walk & animations
     this.character.update(delta, time);
+    this.sceneManager.updateFollow(delta);
 
     // Update island animations (rotating rings, CRT code, LEDs, light pulses)
     this.world.update(delta, time);

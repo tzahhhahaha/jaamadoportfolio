@@ -210,6 +210,7 @@ export class WorldBuilder {
     this.buildChapter3Trace();
     this.buildChapter4CCC();
     this.buildNeonPathways();
+    this.buildChapterShortcutPathways();
     return this;
   }
 
@@ -977,6 +978,60 @@ export class WorldBuilder {
         }
       });
     });
+  }
+
+  buildChapterShortcutPathways() {
+    const chapters = [
+      { id: 'chapter1', color: 0x00f0ff },
+      { id: 'chapter2', color: 0x3b82f6 },
+      { id: 'chapter3', color: 0xa855f7 },
+      { id: 'chapter4', color: 0x10b981 }
+    ];
+
+    for (let i = 0; i < chapters.length; i++) {
+      for (let j = i + 1; j < chapters.length; j++) {
+        const from = chapters[i];
+        const to = chapters[j];
+        const fromCenter = this.islandCenters[from.id];
+        const toCenter = this.islandCenters[to.id];
+        const fromDirection = fromCenter.clone().sub(this.islandCenters.hub).normalize();
+        const toDirection = toCenter.clone().sub(this.islandCenters.hub).normalize();
+        const start = fromCenter.clone().addScaledVector(fromDirection, -4.5);
+        const end = toCenter.clone().addScaledVector(toDirection, -4.5);
+        start.y = 0.8;
+        end.y = 0.8;
+
+        const control = start.clone().add(end).multiplyScalar(0.5);
+        control.y = 2.4;
+
+        const direction = end.clone().sub(start).setY(0).normalize();
+        if (control.clone().sub(this.islandCenters.hub).setY(0).length() < 8) {
+          control.add(new THREE.Vector3(-direction.z, 0, direction.x).multiplyScalar(30));
+        }
+
+        const curve = new THREE.QuadraticBezierCurve3(start, control, end);
+        this.paths[`${from.id}_to_${to.id}`] = curve;
+        this.paths[`${to.id}_to_${from.id}`] = new THREE.QuadraticBezierCurve3(
+          end.clone(),
+          control.clone(),
+          start.clone()
+        );
+
+        const color = new THREE.Color(from.color).lerp(new THREE.Color(to.color), 0.5);
+        const tube = new THREE.Mesh(
+          new THREE.TubeGeometry(curve, 48, 0.45, 8, false),
+          new THREE.MeshStandardMaterial({
+            color,
+            emissive: color,
+            emissiveIntensity: 0.9,
+            roughness: 0.2,
+            transparent: true,
+            opacity: 0.8
+          })
+        );
+        this.scene.add(tube);
+      }
+    }
   }
 
   // Bounce sports balls on click

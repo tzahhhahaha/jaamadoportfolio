@@ -79,6 +79,8 @@ export class SceneManager {
     this.orbitAngles = { theta: Math.PI / 4, phi: Math.PI / 3.4 };
     this.distance = 70;
     this.orbitCenter = new THREE.Vector3(0, 2, 0);
+    this.followTarget = null;
+    this.followLookOffset = new THREE.Vector3(0, 1.8, 0);
 
     const onMouseDown = (e) => {
       if (e.target.tagName !== 'CANVAS') return;
@@ -125,6 +127,10 @@ export class SceneManager {
 
   // Smooth cinematic camera focus transition
   focusOn(position, targetLook, duration = 1.8) {
+    this.followTarget = null;
+    gsap.killTweensOf(this.orbitCenter);
+    gsap.killTweensOf(this.camera.position);
+
     gsap.to(this.orbitCenter, {
       x: targetLook.x,
       y: targetLook.y,
@@ -143,6 +149,30 @@ export class SceneManager {
         this.camera.lookAt(this.orbitCenter);
       }
     });
+  }
+
+  startFollowing(target) {
+    gsap.killTweensOf(this.orbitCenter);
+    gsap.killTweensOf(this.camera.position);
+    this.followTarget = target;
+
+    const cameraOffset = this.camera.position.clone().sub(this.orbitCenter);
+    this.distance = cameraOffset.length();
+    this.orbitAngles.theta = Math.atan2(cameraOffset.x, cameraOffset.z);
+    this.orbitAngles.phi = Math.acos(THREE.MathUtils.clamp(cameraOffset.y / this.distance, -1, 1));
+  }
+
+  stopFollowing() {
+    this.followTarget = null;
+  }
+
+  updateFollow(delta) {
+    if (!this.followTarget) return;
+
+    const targetPosition = this.followTarget.position.clone().add(this.followLookOffset);
+    const smoothing = 1 - Math.exp(-delta * 5);
+    this.orbitCenter.lerp(targetPosition, smoothing);
+    this.updateCameraOrbit();
   }
 
   // Camera presets
